@@ -260,3 +260,104 @@ public class MinHeapLibros
         }
     }
 }
+
+    // ==========================================
+    // 4. ÁRBOL B+
+    // ==========================================
+    public class NodoBPlus
+    {
+        public bool EsHoja;
+        public string[] Claves;
+        public Libro[] Datos;
+        public NodoBPlus[] Hijos;
+        public int NumClaves;
+        public NodoBPlus SiguienteHoja;
+
+        public NodoBPlus(int orden, bool esHoja)
+        {
+            EsHoja = esHoja;
+            Claves = new string[orden];
+            Datos = new Libro[orden];
+            Hijos = new NodoBPlus[orden + 1];
+            NumClaves = 0;
+            SiguienteHoja = null;
+        }
+    }
+
+    public class ArbolBPlus
+    {
+        private NodoBPlus raiz;
+        private readonly int orden;
+
+        public ArbolBPlus(int orden = 3)
+        {
+            this.orden = orden;
+            raiz = new NodoBPlus(orden, true);
+        }
+
+        public Libro Buscar(string codigo)
+        {
+            return BuscarEnNodo(raiz, codigo);
+        }
+
+        private Libro BuscarEnNodo(NodoBPlus nodo, string codigo)
+        {
+            int i = 0;
+            while (i < nodo.NumClaves && string.Compare(codigo, nodo.Claves[i], StringComparison.OrdinalIgnoreCase) > 0) i++;
+
+            if (nodo.EsHoja)
+            {
+                if (i < nodo.NumClaves && string.Equals(nodo.Claves[i], codigo, StringComparison.OrdinalIgnoreCase))
+                {
+                    //está eliminado lógicamente, se considera que no existe
+                    if (!nodo.Datos[i].Eliminado) return nodo.Datos[i];
+                }
+                return null;
+            }
+            return BuscarEnNodo(nodo.Hijos[i], codigo);
+        }
+
+        public void Insertar(Libro libro)
+        {
+            NodoBPlus r = raiz;
+            if (r.NumClaves == orden - 1)
+            {
+                NodoBPlus s = new NodoBPlus(orden, false);
+                raiz = s;
+                s.Hijos[0] = r;
+                DividirHijo(s, 0, r);
+                InsertarNoLleno(s, libro);
+            }
+            else
+            {
+                InsertarNoLleno(r, libro);
+            }
+        }
+
+        private void InsertarNoLleno(NodoBPlus nodo, Libro libro)
+        {
+            int i = nodo.NumClaves - 1;
+            if (nodo.EsHoja)
+            {
+                while (i >= 0 && string.Compare(libro.Codigo, nodo.Claves[i], StringComparison.OrdinalIgnoreCase) < 0)
+                {
+                    nodo.Claves[i + 1] = nodo.Claves[i];
+                    nodo.Datos[i + 1] = nodo.Datos[i];
+                    i--;
+                }
+                nodo.Claves[i + 1] = libro.Codigo;
+                nodo.Datos[i + 1] = libro;
+                nodo.NumClaves++;
+            }
+            else
+            {
+                while (i >= 0 && string.Compare(libro.Codigo, nodo.Claves[i], StringComparison.OrdinalIgnoreCase) < 0) i--;
+                i++;
+                if (nodo.Hijos[i].NumClaves == orden - 1)
+                {
+                    DividirHijo(nodo, i, nodo.Hijos[i]);
+                    if (string.Compare(libro.Codigo, nodo.Claves[i], StringComparison.OrdinalIgnoreCase) > 0) i++;
+                }
+                InsertarNoLleno(nodo.Hijos[i], libro);
+            }
+        }
