@@ -1,7 +1,5 @@
-C#
 using System;
 using System.IO;
-using SistemaBiblioteca;
 
 namespace SistemaBiblioteca
 {
@@ -26,7 +24,7 @@ namespace SistemaBiblioteca
             Categoria = categoria;
             CopiasDisponibles = copias;
             VecesPrestado = vecesPrestado;
-            Eliminado = false; // Por defecto está activo
+            Eliminado = false;
         }
 
         public override string ToString()
@@ -34,9 +32,9 @@ namespace SistemaBiblioteca
             return $"[{Codigo}] \"{Titulo}\" - {Autor} | Cat: {Categoria} | Copias: {CopiasDisponibles} | Préstamos: {VecesPrestado}";
         }
     }
-
+    
     // ==========================================
-    // 2. MAX HEAP (Top libros MÁS PRESTADOS)
+    // 2. MAX HEAP 
     // ==========================================
     public class MaxHeapLibros
     {
@@ -150,14 +148,13 @@ namespace SistemaBiblioteca
             if(impresos == 0) Console.WriteLine("No hay libros disponibles.");
         }
     }
-}
 
-// ==========================================
-// 3. MIN HEAP (Listado Ordenado por TÍTULO de A-Z)
-// ==========================================
-public class MinHeapLibros
-{
-    private Libro[] heap;
+    // ==========================================
+    // 3. MIN HEAP (Listado Ordenado por TÍTULO de A-Z)
+    // ==========================================
+    public class MinHeapLibros
+    {
+        private Libro[] heap;
         public int Cantidad { get; private set; }
 
         public MinHeapLibros(int capacidad = 100)
@@ -172,10 +169,19 @@ public class MinHeapLibros
             for (int i = 0; i < Cantidad; i++) nuevoHeap[i] = heap[i];
             heap = nuevoHeap;
         }
-        public void Subir(init 1)
-    {
-        while (1 > 0 )
+
+        public void Insertar(Libro libro)
         {
+            if (Cantidad == heap.Length) Redimensionar();
+            heap[Cantidad] = libro;
+            Subir(Cantidad);
+            Cantidad++;
+        }
+
+        public void Subir(int i)
+        {
+            while (i > 0)
+            {
                 int padre = (i - 1) / 2;
                 // Compara alfabéticamente el Título: Si i es menor que padre, sube
                 if (string.Compare(heap[i].Titulo, heap[padre].Titulo, StringComparison.OrdinalIgnoreCase) < 0)
@@ -194,7 +200,7 @@ public class MinHeapLibros
             for (int i = (Cantidad / 2) - 1; i >= 0; i--) Bajar(i);
         }
 
-       private void Bajar(int i)
+        private void Bajar(int i)
         {
             int menor = i;
             int izq = 2 * i + 1;
@@ -214,6 +220,7 @@ public class MinHeapLibros
                 Bajar(menor);
             }
         }
+
         public void ImprimirCatalogo()
         {
             Reestructurar();
@@ -259,7 +266,6 @@ public class MinHeapLibros
             if (contador == 1) Console.WriteLine("El catálogo está vacío.");
         }
     }
-}
 
     // ==========================================
     // 4. ÁRBOL B+
@@ -309,7 +315,6 @@ public class MinHeapLibros
             {
                 if (i < nodo.NumClaves && string.Equals(nodo.Claves[i], codigo, StringComparison.OrdinalIgnoreCase))
                 {
-                    //está eliminado lógicamente, se considera que no existe
                     if (!nodo.Datos[i].Eliminado) return nodo.Datos[i];
                 }
                 return null;
@@ -360,7 +365,7 @@ public class MinHeapLibros
                 }
                 InsertarNoLleno(nodo.Hijos[i], libro);
             }
-       }
+        }
 
         private void DividirHijo(NodoBPlus padre, int i, NodoBPlus hijo)
         {
@@ -398,3 +403,204 @@ public class MinHeapLibros
             }
         }
     }
+
+    // ==========================================
+    // 5. PROGRAMA PRINCIPAL Y MENÚ DE CONSOLA
+    // ==========================================
+    class Program
+    {
+        static ArbolBPlus arbolB = new ArbolBPlus(4);
+        static MaxHeapLibros maxHeap = new MaxHeapLibros();
+        static MinHeapLibros minHeap = new MinHeapLibros();
+
+        static void Main(string[] args)
+        {
+            bool salir = false;
+            while (!salir)
+            {
+                Console.WriteLine("\n==================================================");
+                Console.WriteLine("        SISTEMA DE GESTIÓN DE BIBLIOTECA          ");
+                Console.WriteLine("==================================================");
+                Console.WriteLine("1. Cargar catálogo desde archivo (.csv)");
+                Console.WriteLine("2. Registrar un nuevo libro");
+                Console.WriteLine("3. Buscar libro por Código (Árbol B+)");
+                Console.WriteLine("4. Registrar préstamo de libro");
+                Console.WriteLine("5. Registrar devolución de libro");
+                Console.WriteLine("6. Eliminar un libro");
+                Console.WriteLine("7. Ver Top 5 libros más prestados (Max Heap)");
+                Console.WriteLine("8. Mostrar catálogo ordenado por TÍTULO (Min Heap)");
+                Console.WriteLine("9. Salir");
+                Console.WriteLine("==================================================");
+                Console.Write("Seleccione una opción: ");
+
+                string opcion = Console.ReadLine();
+                Console.WriteLine();
+
+                switch (opcion)
+                {
+                    case "1": CargarDesdeCSV(); break;
+                    case "2": RegistrarLibroManual(); break;
+                    case "3": BuscarLibro(); break;
+                    case "4": RegistrarPrestamo(); break;
+                    case "5": RegistrarDevolucion(); break;
+                    case "6": EliminarLibro(); break;
+                    case "7": maxHeap.ImprimirTop(5); break;
+                    case "8": minHeap.ImprimirCatalogo(); break;
+                    case "9": salir = true; break;
+                    default: Console.WriteLine("Opción no válida. Intente de nuevo."); break;
+                }
+            }
+        }
+
+        static void RegistrarLibroEnEstructuras(Libro libro)
+        {
+            arbolB.Insertar(libro);
+            maxHeap.Insertar(libro);
+            minHeap.Insertar(libro);
+        }
+
+        static void CargarDesdeCSV()
+        {
+            Console.Write("Ingrese la ruta del archivo CSV (ej: libros.csv): ");
+            string ruta = Console.ReadLine();
+
+            if (!File.Exists(ruta))
+            {
+                Console.WriteLine("El archivo no existe.");
+                return;
+            }
+
+            try
+            {
+                string[] lineas = File.ReadAllLines(ruta);
+                int cargados = 0;
+
+                for (int i = 0; i < lineas.Length; i++)
+                {
+                    string linea = lineas[i];
+                    if (string.IsNullOrWhiteSpace(linea) || (i == 0 && linea.StartsWith("Codigo"))) continue;
+
+                    string[] partes = linea.Split(',');
+                    if (partes.Length >= 5)
+                    {
+                        string codigo = partes[0].Trim();
+                        string titulo = partes[1].Trim();
+                        string autor = partes[2].Trim();
+                        string categoria = partes[3].Trim();
+                        int copias = int.Parse(partes[4].Trim());
+                        int prestamos = partes.Length > 5 ? int.Parse(partes[5].Trim()) : 0;
+
+                        Libro libro = new Libro(codigo, titulo, autor, categoria, copias, prestamos);
+                        RegistrarLibroEnEstructuras(libro);
+                        cargados++;
+                    }
+                }
+                Console.WriteLine($"Éxito: Se cargaron {cargados} libros desde el archivo.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error al leer el archivo: {ex.Message}");
+            }
+        }
+
+        static void RegistrarLibroManual()
+        {
+            Console.Write("Código único: ");
+            string codigo = Console.ReadLine();
+
+            if (arbolB.Buscar(codigo) != null)
+            {
+                Console.WriteLine("Error: Ya existe un libro con ese código.");
+                return;
+            }
+
+            Console.Write("Título: ");
+            string titulo = Console.ReadLine();
+            Console.Write("Autor: ");
+            string autor = Console.ReadLine();
+            Console.Write("Categoría: ");
+            string categoria = Console.ReadLine();
+            Console.Write("Cantidad de copias: ");
+            int copias = int.Parse(Console.ReadLine());
+
+            Libro libro = new Libro(codigo, titulo, autor, categoria, copias, 0);
+            RegistrarLibroEnEstructuras(libro);
+            Console.WriteLine("Libro registrado exitosamente.");
+        }
+
+        static void BuscarLibro()
+        {
+            Console.Write("Ingrese el código del libro a buscar: ");
+            string codigo = Console.ReadLine();
+
+            Libro libro = arbolB.Buscar(codigo);
+            if (libro != null)
+            {
+                Console.WriteLine("\n[Libro Encontrado]");
+                Console.WriteLine(libro);
+            }
+            else
+            {
+                Console.WriteLine("No se encontró ningún libro con ese código (o fue eliminado).");
+            }
+        }
+
+        static void RegistrarPrestamo()
+        {
+            Console.Write("Ingrese el código del libro a prestar: ");
+            string codigo = Console.ReadLine();
+
+            Libro libro = arbolB.Buscar(codigo);
+            if (libro == null)
+            {
+                Console.WriteLine("Error: El libro no existe o fue eliminado.");
+                return;
+            }
+
+            if (libro.CopiasDisponibles <= 0)
+            {
+                Console.WriteLine("Error: No hay copias disponibles para préstamo.");
+                return;
+            }
+
+            libro.CopiasDisponibles--;
+            libro.VecesPrestado++;
+            maxHeap.Reestructurar();
+
+            Console.WriteLine($"Préstamo registrado. Copias restantes: {libro.CopiasDisponibles}, Total préstamos: {libro.VecesPrestado}");
+        }
+
+        static void RegistrarDevolucion()
+        {
+            Console.Write("Ingrese el código del libro a devolver: ");
+            string codigo = Console.ReadLine();
+
+            Libro libro = arbolB.Buscar(codigo);
+            if (libro == null)
+            {
+                Console.WriteLine("Error: El libro no existe o fue eliminado.");
+                return;
+            }
+
+            libro.CopiasDisponibles++;
+            Console.WriteLine($"Devolución registrada. Copias disponibles actualizadas: {libro.CopiasDisponibles}");
+        }
+
+        static void EliminarLibro()
+        {
+            Console.Write("Ingrese el código del libro a eliminar: ");
+            string codigo = Console.ReadLine();
+            Libro libro = arbolB.Buscar(codigo);
+
+            if (libro != null)
+            {
+                libro.Eliminado = true; // BAJA LÓGICA
+                Console.WriteLine("Libro eliminado del sistema exitosamente.");
+            }
+            else
+            {
+                Console.WriteLine("Error: El libro no existe o ya fue eliminado.");
+            }
+        }
+    }
+}
