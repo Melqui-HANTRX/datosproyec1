@@ -1,6 +1,7 @@
 C#
 using System;
 using System.IO;
+using SistemaBiblioteca;
 
 namespace SistemaBiblioteca
 {
@@ -149,3 +150,113 @@ namespace SistemaBiblioteca
             if(impresos == 0) Console.WriteLine("No hay libros disponibles.");
         }
     }
+}
+
+// ==========================================
+// 3. MIN HEAP (Listado Ordenado por TÍTULO de A-Z)
+// ==========================================
+public class MinHeapLibros
+{
+    private Libro[] heap;
+        public int Cantidad { get; private set; }
+
+        public MinHeapLibros(int capacidad = 100)
+        {
+            heap = new Libro[capacidad];
+            Cantidad = 0;
+        }
+
+        private void Redimensionar()
+        {
+            Libro[] nuevoHeap = new Libro[heap.Length * 2];
+            for (int i = 0; i < Cantidad; i++) nuevoHeap[i] = heap[i];
+            heap = nuevoHeap;
+        }
+        public void Subir(init 1)
+    {
+        while (1 > 0 )
+        {
+                int padre = (i - 1) / 2;
+                // Compara alfabéticamente el Título: Si i es menor que padre, sube
+                if (string.Compare(heap[i].Titulo, heap[padre].Titulo, StringComparison.OrdinalIgnoreCase) < 0)
+                {
+                    var temp = heap[i];
+                    heap[i] = heap[padre];
+                    heap[padre] = temp;
+                    i = padre;
+                }
+                else break;
+            }
+        }
+
+        public void Reestructurar()
+        {
+            for (int i = (Cantidad / 2) - 1; i >= 0; i--) Bajar(i);
+        }
+
+       private void Bajar(int i)
+        {
+            int menor = i;
+            int izq = 2 * i + 1;
+            int der = 2 * i + 2;
+
+            if (izq < Cantidad && string.Compare(heap[izq].Titulo, heap[menor].Titulo, StringComparison.OrdinalIgnoreCase) < 0)
+                menor = izq;
+
+            if (der < Cantidad && string.Compare(heap[der].Titulo, heap[menor].Titulo, StringComparison.OrdinalIgnoreCase) < 0)
+                menor = der;
+
+            if (menor != i)
+            {
+                var temp = heap[i];
+                heap[i] = heap[menor];
+                heap[menor] = temp;
+                Bajar(menor);
+            }
+        }
+        public void ImprimirCatalogo()
+        {
+            Reestructurar();
+            Console.WriteLine($"\n--- CATÁLOGO ORDENADO POR TÍTULO A-Z (Min Heap) ---");
+
+            Libro[] copia = new Libro[Cantidad];
+            for (int i = 0; i < Cantidad; i++) copia[i] = heap[i];
+            int cantCopia = Cantidad;
+            int contador = 1;
+
+            while (cantCopia > 0)
+            {
+                Libro actual = copia[0];
+                copia[0] = copia[cantCopia - 1];
+                cantCopia--;
+
+                if (!actual.Eliminado)
+                {
+                    Console.WriteLine($"{contador}. {actual}");
+                    contador++;
+                }
+
+                int pos = 0;
+                while (pos < cantCopia)
+                {
+                    int menor = pos;
+                    int izq = 2 * pos + 1;
+                    int der = 2 * pos + 2;
+
+                    if (izq < cantCopia && string.Compare(copia[izq].Titulo, copia[menor].Titulo, StringComparison.OrdinalIgnoreCase) < 0) menor = izq;
+                    if (der < cantCopia && string.Compare(copia[der].Titulo, copia[menor].Titulo, StringComparison.OrdinalIgnoreCase) < 0) menor = der;
+
+                    if (menor != pos)
+                    {
+                        var t = copia[pos];
+                        copia[pos] = copia[menor];
+                        copia[menor] = t;
+                        pos = menor;
+                    }
+                    else break;
+                }
+            }
+            if (contador == 1) Console.WriteLine("El catálogo está vacío.");
+        }
+    }
+}
