@@ -360,4 +360,41 @@ public class MinHeapLibros
                 }
                 InsertarNoLleno(nodo.Hijos[i], libro);
             }
+       }
+
+        private void DividirHijo(NodoBPlus padre, int i, NodoBPlus hijo)
+        {
+            NodoBPlus z = new NodoBPlus(orden, hijo.EsHoja);
+            int t = orden / 2;
+
+            if (hijo.EsHoja)
+            {
+                z.NumClaves = hijo.NumClaves - t;
+                for (int j = 0; j < z.NumClaves; j++)
+                {
+                    z.Claves[j] = hijo.Claves[j + t];
+                    z.Datos[j] = hijo.Datos[j + t];
+                }
+                hijo.NumClaves = t;
+                z.SiguienteHoja = hijo.SiguienteHoja;
+                hijo.SiguienteHoja = z;
+                for (int j = padre.NumClaves; j >= i + 1; j--) padre.Hijos[j + 1] = padre.Hijos[j];
+                padre.Hijos[i + 1] = z;
+                for (int j = padre.NumClaves - 1; j >= i; j--) padre.Claves[j + 1] = padre.Claves[j];
+                padre.Claves[i] = z.Claves[0];
+                padre.NumClaves++;
+            }
+            else
+            {
+                z.NumClaves = t - 1;
+                for (int j = 0; j < z.NumClaves; j++) z.Claves[j] = hijo.Claves[j + t];
+                for (int j = 0; j < t; j++) z.Hijos[j] = hijo.Hijos[j + t];
+                hijo.NumClaves = t - 1;
+                for (int j = padre.NumClaves; j >= i + 1; j--) padre.Hijos[j + 1] = padre.Hijos[j];
+                padre.Hijos[i + 1] = z;
+                for (int j = padre.NumClaves - 1; j >= i; j--) padre.Claves[j + 1] = padre.Claves[j];
+                padre.Claves[i] = hijo.Claves[t - 1];
+                padre.NumClaves++;
+            }
         }
+    }
