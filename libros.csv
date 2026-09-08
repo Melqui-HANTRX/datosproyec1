@@ -1,0 +1,16 @@
+Codigo,Titulo,Autor,Categoria,Copias,Prestamos
+L001,El Principito,Antoine de Saint-Exupéry,Literatura,4,18
+L002,Clean Code,Robert C. Martin,Tecnología,2,31
+L003,Cien años de soledad,Gabriel García Márquez,Literatura,5,24
+L004,Introducción a los algoritmos,Cormen et al.,Tecnología,3,12
+L005,1984,George Orwell,Literatura,2,27
+L006,El universo en una cáscara de nuez,Stephen Hawking,Ciencia,3,9
+L007,Don Quijote de la Mancha,Miguel de Cervantes,Literatura,4,15
+L008,Cosmos,Carl Sagan,Ciencia,2,21
+L009,Design Patterns,Gamma et al.,Tecnología,1,34
+L010,Breve historia del tiempo,Stephen Hawking,Ciencia,3,6
+L011,Dune,Frank Herbert,Ciencia Ficción,2,19
+L012,El hobbit,J.R.R. Tolkien,Fantasía,4,22
+L013,Fundamentos de bases de datos,Elmasri y Navathe,Tecnología,3,11
+L014,La guerra de los mundos,H.G. Wells,Ciencia Ficción,2,16
+L015,Sapiens,Yuval Noah Harari,Historia,3,28
